@@ -1,0 +1,23 @@
+On doit travailler sur une application de tracage de transfert d'argent, c'est à dire une application qui nous permettra de tracer les différentes transactions de transfert d'argent entre plusieurs pays.
+
+On aura trois profils dans l'application : Agent, Admin et Client.
+Un utilisateur peut avoir plusieurs profils.
+
+Pour chaque transfert d'argent on devra avoir :
+Infos du Sendeur, Infos du receveur, montant, code, devise (Toujours en Dollars, mais on en fera une tabloe), date de transfert, Statut de paiement.
+On recuperera aussi l'agent qui a fait le transfert à travers Auth, et aussi l'agent qui fera le retrait à travers Auth.
+
+Comme infos du sendeur et receveur (Table Users) on aura : Nom, prenom, numero de telephone.
+Comme Infos de l'agent et Admin : Nom, prenom, numero de telephone et Pays, donc pays est nullable pour users.
+
+Génération de code :
+(A1-1+++, on recommence A1 au debut du mois prochain)
+
+Les differents Pays : On en fera une table pour rendre dynamique.
+Dubai, Malaisie, Thaïlande, chine, Guinée, Liberia, côte d’ivoire, Sierra Leone, Mali.
+
+Donc en gros un agent fais un transfert et un autre agent fais le paiement de cet argent au destinataire, ce qui met à jour le statut de paiement.
+
+Il y'a une autre partie :
+Parfois les agents  ils gardent l’argent pour certaines personnes, permettre de suivre la sortie lorsqu’ils paient.
+C'est à dire si quelquun les confient l'argent on doit avoir Le nom du remettant et date depot, si plus tard on lui rend son argent en partie ou totalement on doit suivre le montant et la date de paiement.
