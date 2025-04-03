@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Transfer;
 use App\Models\User;
 use App\Models\Currency;
+use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -73,12 +74,17 @@ class TransferController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Transfer::class);
+
         $currencies = Currency::all();
-        return view('transfers.create', compact('currencies'));
+        $countries = Country::all();
+        return view('transfers.create', compact('currencies', 'countries'));
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Transfer::class);
+
         $validated = $request->validate([
             'sender_first_name' => 'required|string|max:255',
             'sender_last_name' => 'required|string|max:255',
@@ -88,6 +94,8 @@ class TransferController extends Controller
             'receiver_phone' => 'required|string|max:20',
             'amount' => 'required|numeric|min:0',
             'currency_id' => 'required|exists:currencies,id',
+            'source_country_id' => 'required|exists:countries,id',
+            'destination_country_id' => 'required|exists:countries,id',
         ]);
 
         // Créer ou récupérer le sender
@@ -130,6 +138,8 @@ class TransferController extends Controller
             'sending_agent_id' => Auth::user()->id,
             'amount' => $validated['amount'],
             'currency_id' => $validated['currency_id'],
+            'source_country_id' => $validated['source_country_id'],
+            'destination_country_id' => $validated['destination_country_id'],
             'code' => $code,
             'status' => 'pending',
             'transfer_date' => now(),
@@ -204,16 +214,24 @@ class TransferController extends Controller
 
     public function exportExcel()
     {
+        $this->authorize('viewAny', Transfer::class);
+
         $user = Auth::user();
-        $query = Transfer::with(['sender', 'receiver', 'sendingAgent', 'payingAgent', 'currency']);
+        if (!$user->hasRole('admin') && !$user->hasRole('agent')) {
+            return back()->with('error', 'Vous n\'êtes pas autorisé à exporter les données.');
+        }
+
+        $query = Transfer::with(['sender', 'receiver', 'sendingAgent', 'payingAgent', 'currency', 'sourceCountry', 'destinationCountry']);
 
         if ($user->hasRole('admin')) {
-            $transfers = $query->get();
+            $transfers = $query->latest()->get();
         } elseif ($user->hasRole('agent')) {
             $transfers = $query->where(function($q) use ($user) {
                 $q->where('sending_agent_id', $user->id)
                   ->orWhere('paying_agent_id', $user->id);
-            })->get();
+            })->latest()->get();
+        } else {
+            $transfers = collect(); // Collection vide si l'utilisateur n'a pas les rôles requis
         }
 
         return Excel::download(new TransfersExport($transfers), 'transferts.xlsx');
@@ -221,16 +239,24 @@ class TransferController extends Controller
 
     public function exportCsv()
     {
+        $this->authorize('viewAny', Transfer::class);
+
         $user = Auth::user();
-        $query = Transfer::with(['sender', 'receiver', 'sendingAgent', 'payingAgent', 'currency']);
+        if (!$user->hasRole('admin') && !$user->hasRole('agent')) {
+            return back()->with('error', 'Vous n\'êtes pas autorisé à exporter les données.');
+        }
+
+        $query = Transfer::with(['sender', 'receiver', 'sendingAgent', 'payingAgent', 'currency', 'sourceCountry', 'destinationCountry']);
 
         if ($user->hasRole('admin')) {
-            $transfers = $query->get();
+            $transfers = $query->latest()->get();
         } elseif ($user->hasRole('agent')) {
             $transfers = $query->where(function($q) use ($user) {
                 $q->where('sending_agent_id', $user->id)
                   ->orWhere('paying_agent_id', $user->id);
-            })->get();
+            })->latest()->get();
+        } else {
+            $transfers = collect(); // Collection vide si l'utilisateur n'a pas les rôles requis
         }
 
         return Excel::download(new TransfersExport($transfers), 'transferts.csv', \Maatwebsite\Excel\Excel::CSV);
@@ -238,16 +264,24 @@ class TransferController extends Controller
 
     public function exportPdf()
     {
+        $this->authorize('viewAny', Transfer::class);
+
         $user = Auth::user();
-        $query = Transfer::with(['sender', 'receiver', 'sendingAgent', 'payingAgent', 'currency']);
+        if (!$user->hasRole('admin') && !$user->hasRole('agent')) {
+            return back()->with('error', 'Vous n\'êtes pas autorisé à exporter les données.');
+        }
+
+        $query = Transfer::with(['sender', 'receiver', 'sendingAgent', 'payingAgent', 'currency', 'sourceCountry', 'destinationCountry']);
 
         if ($user->hasRole('admin')) {
-            $transfers = $query->get();
+            $transfers = $query->latest()->get();
         } elseif ($user->hasRole('agent')) {
             $transfers = $query->where(function($q) use ($user) {
                 $q->where('sending_agent_id', $user->id)
                   ->orWhere('paying_agent_id', $user->id);
-            })->get();
+            })->latest()->get();
+        } else {
+            $transfers = collect(); // Collection vide si l'utilisateur n'a pas les rôles requis
         }
 
         $pdf = PDF::loadView('transfers.pdf', compact('transfers'));

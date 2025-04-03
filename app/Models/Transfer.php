@@ -15,6 +15,8 @@ class Transfer extends Model
         'receiver_id',
         'amount',
         'currency_id',
+        'source_country_id',
+        'destination_country_id',
         'status',
         'sending_agent_id',
         'paying_agent_id',
@@ -51,5 +53,15 @@ class Transfer extends Model
     public function currency()
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function sourceCountry()
+    {
+        return $this->belongsTo(Country::class, 'source_country_id');
+    }
+
+    public function destinationCountry()
+    {
+        return $this->belongsTo(Country::class, 'destination_country_id');
     }
 }

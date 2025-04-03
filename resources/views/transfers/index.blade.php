@@ -4,9 +4,11 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Transferts') }}
             </h2>
+            @if(auth()->user()->hasRole('agent'))
             <a href="{{ route('transfers.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 {{ __('Nouveau transfert') }}
             </a>
+            @endif
         </div>
     </x-slot>
 
@@ -72,6 +74,7 @@
 
                     <div class="overflow-x-auto">
                         <div class="flex justify-end mb-4 space-x-4">
+                            @if(auth()->user()->hasRole('agent') || auth()->user()->hasRole('admin'))
                             <a href="{{ route('transfers.export.excel') }}" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 focus:bg-green-500 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 {{ __('Excel') }}
                             </a>
@@ -81,6 +84,7 @@
                             <a href="{{ route('transfers.export.pdf') }}" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 {{ __('PDF') }}
                             </a>
+                            @endif
                         </div>
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -89,6 +93,8 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expéditeur</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destinataire</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">De</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vers</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de transfert</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -110,6 +116,12 @@
                                             {{ number_format($transfer->amount, 2) }} {{ $transfer->currency->code }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $transfer->sourceCountry ? $transfer->sourceCountry->name : 'N/A' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $transfer->destinationCountry ? $transfer->destinationCountry->name : 'N/A' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                                 @if($transfer->status === 'paid') bg-green-100 text-green-800
                                                 @elseif($transfer->status === 'cancelled') bg-red-100 text-red-800
@@ -124,7 +136,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <a href="{{ route('transfers.show', $transfer) }}" class="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-md">{{ __('Voir') }}</a>
                                             <a href="{{ route('transfers.receipt', $transfer) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-md ml-2">{{ __('Reçu') }}</a>
-                                            @if($transfer->status === 'pending')
+                                            @if($transfer->status === 'pending' && auth()->user()->hasRole('agent'))
                                                 @if(auth()->user()->id !== $transfer->sending_agent_id)
                                                     <button type="button"
                                                             x-data
@@ -156,7 +168,7 @@
 
     <!-- Modal de confirmation de paiement -->
     @foreach($transfers as $transfer)
-        @if($transfer->status === 'pending' && auth()->user()->id !== $transfer->sending_agent_id)
+        @if($transfer->status === 'pending' && auth()->user()->hasRole('agent') && auth()->user()->id !== $transfer->sending_agent_id)
             <x-modal name="confirm-payment-{{ $transfer->id }}" :show="false" focusable>
                 <form method="POST" action="{{ route('transfers.update-status', $transfer) }}" class="p-6">
                     @csrf
@@ -184,7 +196,7 @@
             </x-modal>
         @endif
 
-        @if($transfer->status === 'pending' && auth()->user()->id === $transfer->sending_agent_id)
+        @if($transfer->status === 'pending' && auth()->user()->hasRole('agent') && auth()->user()->id === $transfer->sending_agent_id)
             <x-modal name="confirm-cancellation-{{ $transfer->id }}" :show="false" focusable>
                 <form method="POST" action="{{ route('transfers.update-status', $transfer) }}" class="p-6">
                     @csrf

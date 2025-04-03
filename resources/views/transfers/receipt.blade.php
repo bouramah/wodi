@@ -98,6 +98,14 @@
             <span class="info-label">{{ __('Statut') }}:</span>
             <span>{{ __('transfers.status.' . $transfer->status) }}</span>
         </div>
+        <div class="info-row">
+            <span class="info-label">{{ __('Pays d\'origine') }}:</span>
+            <span>{{ $transfer->sourceCountry ? $transfer->sourceCountry->name : 'Non spécifié' }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">{{ __('Pays de destination') }}:</span>
+            <span>{{ $transfer->destinationCountry ? $transfer->destinationCountry->name : 'Non spécifié' }}</span>
+        </div>
     </div>
 
     <div class="section">

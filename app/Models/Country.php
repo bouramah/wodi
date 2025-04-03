@@ -18,4 +18,14 @@ class Country extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function sourceTransfers()
+    {
+        return $this->hasMany(Transfer::class, 'source_country_id');
+    }
+
+    public function destinationTransfers()
+    {
+        return $this->hasMany(Transfer::class, 'destination_country_id');
+    }
 }

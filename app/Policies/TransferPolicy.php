@@ -12,6 +12,7 @@ class TransferPolicy
      */
     public function viewAny(User $user): bool
     {
+        // Les admins et agents peuvent voir la liste des transferts
         return $user->hasRole('admin') || $user->hasRole('agent');
     }
 
@@ -20,19 +21,8 @@ class TransferPolicy
      */
     public function view(User $user, Transfer $transfer): bool
     {
-        // Les administrateurs peuvent voir tous les transferts
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
-        // Les agents peuvent voir tous les transferts en attente
-        if ($user->hasRole('agent') && $transfer->status === 'pending') {
-            return true;
-        }
-
-        // Les agents peuvent voir les transferts où ils sont impliqués
-        return $transfer->sending_agent_id === $user->id ||
-               $transfer->paying_agent_id === $user->id;
+        // Les administrateurs et les agents peuvent voir tous les transferts
+        return $user->hasRole('admin') || $user->hasRole('agent');
     }
 
     /**
@@ -40,7 +30,8 @@ class TransferPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('agent');
+        // Seuls les agents peuvent créer des transferts, même s'ils sont aussi admin
+        return $user->hasRole('agent');
     }
 
     /**
@@ -48,9 +39,9 @@ class TransferPolicy
      */
     public function update(User $user, Transfer $transfer): bool
     {
-        // Si l'utilisateur est admin, il peut tout faire
-        if ($user->hasRole('admin')) {
-            return true;
+        // Seuls les agents peuvent mettre à jour les transferts
+        if (!$user->hasRole('agent')) {
+            return false;
         }
 
         // Si l'utilisateur est l'agent qui a créé le transfert, il peut l'annuler
@@ -73,6 +64,7 @@ class TransferPolicy
      */
     public function delete(User $user, Transfer $transfer): bool
     {
-        return $user->hasRole('admin');
+        // Personne ne peut supprimer un transfert, même pas un admin
+        return false;
     }
 }

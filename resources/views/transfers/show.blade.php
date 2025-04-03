@@ -67,6 +67,18 @@
                                 </dd>
                             </div>
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">{{ __('Pays d\'origine') }}</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                                    {{ $transfer->sourceCountry ? $transfer->sourceCountry->name : 'Non spécifié' }}
+                                </dd>
+                            </div>
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
+                                <dt class="text-sm font-medium text-gray-500">{{ __('Pays de destination') }}</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                                    {{ $transfer->destinationCountry ? $transfer->destinationCountry->name : 'Non spécifié' }}
+                                </dd>
+                            </div>
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">{{ __('Statut') }}</dt>
                                 <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
@@ -112,7 +124,7 @@
                         </div>
                     </div>
 
-                    @if($transfer->status === 'pending')
+                    @if($transfer->status === 'pending' && auth()->user()->hasRole('agent'))
                         <div class="mt-8 flex justify-end space-x-4">
                             @if(auth()->user()->id !== $transfer->sending_agent_id)
                                 <button type="button"
@@ -148,6 +160,7 @@
     </div>
 
     <!-- Modal de confirmation de paiement -->
+    @if(auth()->user()->hasRole('agent'))
     <x-modal name="confirm-payment" :show="false" focusable>
         <form method="POST" action="{{ route('transfers.update-status', $transfer) }}" class="p-6">
             @csrf
@@ -200,4 +213,5 @@
             </div>
         </form>
     </x-modal>
+    @endif
 </x-app-layout>

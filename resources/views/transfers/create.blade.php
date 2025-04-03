@@ -82,6 +82,32 @@
                                     </select>
                                     <x-input-error :messages="$errors->get('currency_id')" class="mt-2" />
                                 </div>
+
+                                <div>
+                                    <x-input-label for="source_country_id" :value="__('Pays d\'origine')" />
+                                    <select id="source_country_id" name="source_country_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                        <option value="">{{ __('Sélectionner un pays') }}</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}" {{ old('source_country_id') == $country->id ? 'selected' : '' }}>
+                                                {{ $country->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error :messages="$errors->get('source_country_id')" class="mt-2" />
+                                </div>
+
+                                <div>
+                                    <x-input-label for="destination_country_id" :value="__('Pays de destination')" />
+                                    <select id="destination_country_id" name="destination_country_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                        <option value="">{{ __('Sélectionner un pays') }}</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}" {{ old('destination_country_id') == $country->id ? 'selected' : '' }}>
+                                                {{ $country->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error :messages="$errors->get('destination_country_id')" class="mt-2" />
+                                </div>
                             </div>
                         </div>
 
