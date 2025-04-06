@@ -13,7 +13,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-full mx-auto px-4">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @if(session('success'))
@@ -86,42 +86,43 @@
                             </a>
                             @endif
                         </div>
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <div class="overflow-hidden">
+                        <table class="w-full table-fixed divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expéditeur</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destinataire</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">De</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vers</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de transfert</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th class="w-1/12 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                                    <th class="w-1/8 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expéditeur</th>
+                                    <th class="w-1/8 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destinataire</th>
+                                    <th class="w-1/12 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                                    <th class="w-1/10 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">De</th>
+                                    <th class="w-1/10 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vers</th>
+                                    <th class="w-1/12 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                    <th class="w-1/12 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="w-1/6 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($transfers as $transfer)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-3 py-3 text-sm font-medium text-gray-900 truncate">
                                             {{ $transfer->code }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td class="px-3 py-3 text-sm text-gray-500 truncate">
                                             {{ $transfer->sender->first_name }} {{ $transfer->sender->last_name }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td class="px-3 py-3 text-sm text-gray-500 truncate">
                                             {{ $transfer->receiver->first_name }} {{ $transfer->receiver->last_name }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td class="px-3 py-3 text-sm text-gray-500 truncate">
                                             {{ number_format($transfer->amount, 2) }} {{ $transfer->currency->code }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td class="px-3 py-3 text-sm text-gray-500 truncate">
                                             {{ $transfer->sourceCountry ? $transfer->sourceCountry->name : 'N/A' }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td class="px-3 py-3 text-sm text-gray-500 truncate">
                                             {{ $transfer->destinationCountry ? $transfer->destinationCountry->name : 'N/A' }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td class="px-3 py-3 text-sm text-gray-500">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                                 @if($transfer->status === 'paid') bg-green-100 text-green-800
                                                 @elseif($transfer->status === 'cancelled') bg-red-100 text-red-800
@@ -130,19 +131,19 @@
                                                 {{ __('transfers.status.' . $transfer->status) }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $transfer->created_at->format('d/m/Y H:i') }}
+                                        <td class="px-3 py-3 text-sm text-gray-500">
+                                            {{ $transfer->created_at->format('d/m/Y') }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('transfers.show', $transfer) }}" class="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-md">{{ __('Voir') }}</a>
-                                            <a href="{{ route('transfers.receipt', $transfer) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-md ml-2">{{ __('Reçu') }}</a>
+                                        <td class="px-3 py-3 text-right text-sm font-medium flex flex-wrap gap-1 justify-end">
+                                            <a href="{{ route('transfers.show', $transfer) }}" class="inline-flex items-center px-2 py-1 bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-md">{{ __('Voir') }}</a>
+                                            <a href="{{ route('transfers.receipt', $transfer) }}" target="_blank" class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-md">{{ __('Reçu') }}</a>
                                             @if($transfer->status === 'pending' && auth()->user()->hasRole('agent'))
                                                 @if(auth()->user()->id !== $transfer->sending_agent_id)
                                                     <button type="button"
                                                             x-data
                                                             x-on:click="$dispatch('open-modal', 'confirm-payment-{{ $transfer->id }}')"
-                                                            class="inline-flex items-center px-3 py-1 bg-green-100 text-green-600 hover:bg-green-200 rounded-md ml-2">
-                                                        {{ __('Marquer comme payé') }}
+                                                            class="inline-flex items-center px-2 py-1 bg-green-100 text-green-600 hover:bg-green-200 rounded-md">
+                                                        {{ __('Payer') }}
                                                     </button>
                                                 @endif
 
@@ -150,7 +151,7 @@
                                                     <button type="button"
                                                             x-data
                                                             x-on:click="$dispatch('open-modal', 'confirm-cancellation-{{ $transfer->id }}')"
-                                                            class="inline-flex items-center px-3 py-1 bg-red-100 text-red-600 hover:bg-red-200 rounded-md ml-2">
+                                                            class="inline-flex items-center px-2 py-1 bg-red-100 text-red-600 hover:bg-red-200 rounded-md">
                                                         {{ __('Annuler') }}
                                                     </button>
                                                 @endif
@@ -160,6 +161,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>
